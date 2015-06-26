@@ -51,13 +51,24 @@ dim(dataset3)
 #Check that R is interpreting datset3 as desired (factors are factors, OTUs are numbers, etc.)
 str(dataset3[1:8,1:10])
 
+#Now add in any additional "metadata" information you have for the samples
+#this could include treatment factors like landuse, host species, sampling date, etc.
+#it may also include environmental data you would like to use as co-variates, such as soil moisture, temperature, C content
+#This file should likely be generated in Excel and saved as a .csv file
+#Be sure sample IDs are identical in the sequence and metadata files.  They do not have to be in the same order
+metadata<-read.csv(file.choose())
+dataset4<-merge(metadata, dataset3, by=SampleID)
+#The above code assumes the SampleID column is named "SampleID" in both files, if the column title is different, use the command below
+#where "Sample" is the column title in "metadata" and "SampleID" is the column title in dataset3 (change these titles to match your datset)
+dataset4<-merge(metadata, dataset3, by.x=Sample, by.y=SampleID)
+
 # First we remove the singletons using the dropspc() function form the labdsv package.  In the line below I bind metadata (columns 1 through 5) 
 #you will need to change this based on how many columns of metadata your table may include 
 #Note that for the dropspc function I exclude columns 1:5 so only the OTU columns are considered (no metadata) 
 #you will need to modify these numbers for your specific dataset
 #If you used split_libraries in QIIME, it may alread have eleminated singtons
 #Here I'm indicating to exclude OTUs with fewer than 5 reads, this cut-off can be changed as you wish
-data.nosing<-cbind(dataset3[1:5],dropspc(dataset3[,-1:5],5))
+data.nosing<-cbind(dataset4[1:5],dropspc(dataset4[,-1:5],5))
 #Preview data.nosing to see if it looks right and how many (if any) OTUs were excluded
 str(data.nosing)
 dim(data.nosing)
